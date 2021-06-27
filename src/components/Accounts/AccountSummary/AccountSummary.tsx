@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Switch, Route, Link, useRouteMatch } from "react-router-dom";
 import AccountDetails from "../AccountDetails/AccountDetails";
 
-const AccountSummary = () => {
+const AccountSummary = (): JSX.Element => {
   const accounts = ["Cashedge", "Fiserv"];
   const [accId, setAccId] = useState(accounts[0]);
   const { path, url } = useRouteMatch();

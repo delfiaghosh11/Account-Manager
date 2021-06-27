@@ -5,7 +5,7 @@ import AccountSummary from "./Accounts/AccountSummary/AccountSummary";
 
 import "./App.css";
 
-const App = () => (
+const App = (): JSX.Element => (
   <Router>
     <div>
       <ul>
