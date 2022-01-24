@@ -1,3 +1,9 @@
-const Dashboard = (): JSX.Element => <h2>Dashboard</h2>;
+import { Container } from "react-bootstrap";
+
+const Dashboard = (): JSX.Element => (
+  <Container>
+    <h2>Dashboard</h2>
+  </Container>
+);
 
 export default Dashboard;

@@ -1,9 +1,13 @@
+import { Container } from "react-bootstrap";
+
 interface accountDetailsProps {
   id: string;
 }
 
 const AccountDetails = ({ id }: accountDetailsProps): JSX.Element => (
-  <h3>Account Name: {id}</h3>
+  <Container>
+    <h6>Account Name: {id}</h6>
+  </Container>
 );
 
 export default AccountDetails;

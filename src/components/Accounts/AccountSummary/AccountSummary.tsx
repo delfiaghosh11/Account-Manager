@@ -1,32 +1,45 @@
 import { useState } from "react";
-import { Switch, Route, Link, useRouteMatch } from "react-router-dom";
+import {
+  Switch,
+  Route,
+  useRouteMatch,
+  Link,
+  BrowserRouter as Router,
+} from "react-router-dom";
+import { Tabs, Tab } from "react-bootstrap";
+
 import AccountDetails from "../AccountDetails/AccountDetails";
 
 const AccountSummary = (): JSX.Element => {
-  const accounts = ["Cashedge", "Fiserv"];
+  const accounts = ["Axis", "ICICI"];
   const [accId, setAccId] = useState(accounts[0]);
   const { path, url } = useRouteMatch();
 
   return (
-    <div>
+    <Router>
+      <Tabs
+        defaultActiveKey="Axis"
+        id="uncontrolled-tab-example"
+        className="mb-3"
+      >
+        {accounts.map((account, index) => (
+          <Tab
+            eventKey={account}
+            title={account}
+            key={index}
+            onClick={() => setAccId(account)}
+          >
+            <Link to={`${url}/details`}>{account}</Link>
+          </Tab>
+        ))}
+      </Tabs>
+
       <Switch>
-        <Route path={`${path}/summary`}>
+        <Route path={`${path}/details`}>
           <AccountDetails id={accId} />
         </Route>
-        <Route path={path}>
-          <h2>Account Summary</h2>
-          <ul>
-            {accounts.map((account, index) => (
-              <li key={index}>
-                <Link to={`${url}/summary`} onClick={() => setAccId(account)}>
-                  {account}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Route>
       </Switch>
-    </div>
+    </Router>
   );
 };
 
