@@ -1,45 +1,39 @@
 import { useState } from "react";
-import {
-  Switch,
-  Route,
-  useRouteMatch,
-  Link,
-  BrowserRouter as Router,
-} from "react-router-dom";
-import { Tabs, Tab } from "react-bootstrap";
+import { useLocation } from "react-router-dom";
+import { Tabs, Tab, Container } from "react-bootstrap";
 
 import AccountDetails from "../AccountDetails/AccountDetails";
+import { accountProps } from "../types";
 
-const AccountSummary = (): JSX.Element => {
-  const accounts = ["Axis", "ICICI"];
-  const [accId, setAccId] = useState(accounts[0]);
-  const { path, url } = useRouteMatch();
+interface accountSummaryProps {
+  accounts: accountProps[];
+}
+
+const AccountSummary = ({ accounts }: accountSummaryProps): JSX.Element => {
+  const location = useLocation();
+  const [selectedTab, setSelectedTab] = useState<string | null>(location.hash);
+
+  const handleSelect = (e: string | null) => setSelectedTab(e);
 
   return (
-    <Router>
+    <Container fluid>
       <Tabs
-        defaultActiveKey="Axis"
-        id="uncontrolled-tab-example"
-        className="mb-3"
+        id="accounts-tab"
+        className="mb-3 my-2"
+        activeKey={selectedTab ? selectedTab : 1}
+        onSelect={(e: string | null) => handleSelect(e)}
       >
         {accounts.map((account, index) => (
           <Tab
-            eventKey={account}
-            title={account}
-            key={index}
-            onClick={() => setAccId(account)}
+            eventKey={account.id}
+            title={account.bank}
+            key={`account-${index}`}
           >
-            <Link to={`${url}/details`}>{account}</Link>
+            <AccountDetails account={account} />
           </Tab>
         ))}
       </Tabs>
-
-      <Switch>
-        <Route path={`${path}/details`}>
-          <AccountDetails id={accId} />
-        </Route>
-      </Switch>
-    </Router>
+    </Container>
   );
 };
 
