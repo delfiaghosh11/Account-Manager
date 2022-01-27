@@ -1,48 +1,32 @@
-import { Container, Card, Row, Col } from "react-bootstrap";
-import { accountProps } from "../Accounts/types";
+import { Container } from "react-bootstrap";
+import { bankProps } from "../types";
 
 interface dashboardProps {
-  accounts: accountProps[];
+  banks: bankProps[];
 }
 
-const Dashboard = ({ accounts }: dashboardProps): JSX.Element => (
+const Dashboard = ({ banks }: dashboardProps): JSX.Element => (
   <Container className="my-5">
-    <Row>
-      {accounts.map(
-        ({ logo, bank, name, balance }: accountProps, index: number) => (
-          <Col
-            lg={3}
-            md={6}
-            sm={12}
-            className="my-3 mx-lg-4"
-            key={`column-account-${index}`}
-          >
-            <Card
-              className="mx-auto"
-              style={{ width: "18rem", height: "28rem" }}
-              key={`bank-account-${index}`}
-            >
-              <Card.Img
-                variant="top"
-                src={logo}
-                style={{ width: "286px", height: "286px" }}
-              />
-              <Card.Body>
-                <Card.Title>{bank}</Card.Title>
-                <Card.Text>
-                  <span>Account Holder:&nbsp;</span>
-                  <span style={{ fontWeight: "bold" }}>{name}</span>
-                </Card.Text>
-                <Card.Text>
-                  <span>Balance:&nbsp;</span>
-                  <span style={{ fontWeight: "bold" }}>Rs. {balance}</span>
-                </Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        )
-      )}
-    </Row>
+    {banks.map(
+      ({ bankId, bankName, displayName, description, logo }: bankProps) => (
+        <div
+          key={`bank-${bankId}`}
+          className="d-flex align-items-center my-3 border"
+        >
+          <div className="flex-shrink-0 border-end">
+            <img
+              src={logo}
+              alt={bankName}
+              style={{ width: "100px", height: "100px" }}
+            />
+          </div>
+          <div className="flex-grow-1 ms-3 text-truncate">
+            <div className="fw-bold mb-1">{displayName}</div>
+            <div className="mr-2 text-truncate">{description}</div>
+          </div>
+        </div>
+      )
+    )}
   </Container>
 );
 

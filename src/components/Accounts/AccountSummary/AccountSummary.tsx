@@ -3,13 +3,13 @@ import { useLocation } from "react-router-dom";
 import { Tabs, Tab, Container } from "react-bootstrap";
 
 import AccountDetails from "../AccountDetails/AccountDetails";
-import { accountProps } from "../types";
+import { bankProps } from "../../types";
 
 interface accountSummaryProps {
-  accounts: accountProps[];
+  banks: bankProps[];
 }
 
-const AccountSummary = ({ accounts }: accountSummaryProps): JSX.Element => {
+const AccountSummary = ({ banks }: accountSummaryProps): JSX.Element => {
   const location = useLocation();
   const [selectedTab, setSelectedTab] = useState<string | null>(location.hash);
 
@@ -23,13 +23,9 @@ const AccountSummary = ({ accounts }: accountSummaryProps): JSX.Element => {
         activeKey={selectedTab ? selectedTab : 1}
         onSelect={(e: string | null) => handleSelect(e)}
       >
-        {accounts.map((account, index) => (
-          <Tab
-            eventKey={account.id}
-            title={account.bank}
-            key={`account-${index}`}
-          >
-            <AccountDetails account={account} />
+        {banks.map(({ bankId, bankName, accounts }: bankProps) => (
+          <Tab eventKey={bankId} title={bankName} key={`bank-tab-${bankId}`}>
+            <AccountDetails accounts={accounts} />
           </Tab>
         ))}
       </Tabs>

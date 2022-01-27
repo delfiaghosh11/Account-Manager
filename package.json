@@ -1,7 +1,8 @@
 {
-  "name": "react-router-app",
-  "version": "0.1.0",
+  "name": "account-manager",
+  "version": "1.0.0",
   "private": true,
+  "homepage": "https://delfiaghosh11.github.io",
   "dependencies": {
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^11.2.7",

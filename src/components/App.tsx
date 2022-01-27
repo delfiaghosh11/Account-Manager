@@ -4,7 +4,7 @@ import { Nav, Navbar } from "react-bootstrap";
 
 import Dashboard from "./Dashboard/Dashboard";
 import AccountSummary from "./Accounts/AccountSummary/AccountSummary";
-import { accounts } from "./mockData";
+import { banks } from "./mockData";
 
 import "./App.css";
 
@@ -23,10 +23,10 @@ const App = (): JSX.Element => (
 
     <Switch>
       <Route exact path="/">
-        <Dashboard accounts={accounts} />
+        <Dashboard banks={banks} />
       </Route>
       <Route path="/accounts">
-        <AccountSummary accounts={accounts} />
+        <AccountSummary banks={banks} />
       </Route>
     </Switch>
   </Router>
