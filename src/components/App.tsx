@@ -4,6 +4,7 @@ import { Nav, Navbar } from "react-bootstrap";
 
 import Dashboard from "./Dashboard/Dashboard";
 import AccountSummary from "./Accounts/AccountSummary/AccountSummary";
+import Charts from "./Charts/Charts";
 import { banks } from "./mockData";
 
 import "./App.css";
@@ -23,6 +24,9 @@ const App = (): JSX.Element => (
           <Nav.Link as={Link} to="/accounts">
             Accounts
           </Nav.Link>
+          <Nav.Link as={Link} to="/charts">
+            Charts
+          </Nav.Link>
         </Nav>
       </Navbar.Collapse>
     </Navbar>
@@ -33,6 +37,9 @@ const App = (): JSX.Element => (
       </Route>
       <Route path="/accounts">
         <AccountSummary banks={banks} />
+      </Route>
+      <Route path="/charts">
+        <Charts banks={banks} />
       </Route>
     </Switch>
   </Router>

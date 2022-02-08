@@ -10,5 +10,6 @@ export interface bankProps {
 export interface accountProps {
   accId: string;
   accHolderName: string;
-  accBalance: string;
+  accBalance: number;
+  displayAccBalance: string;
 }
