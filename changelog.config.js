@@ -1,3 +1,4 @@
+/* eslint-disable */
 module.exports = {
   disableEmoji: false,
   format: "{type}{scope}: {emoji}{subject}",
