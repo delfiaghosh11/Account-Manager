@@ -28,7 +28,7 @@ const Charts = ({ banks }: chartsProps): JSX.Element => {
 
   let draw: Svg;
 
-  const bar = (bankName: string, balance: number, y: number) => {
+  const svgBarChart = (bankName: string, balance: number, y: number) => {
     draw.text(bankName).move(0, y).font({ size: 16 }).fill(colors.black);
 
     const width = new Number(balance).divide(maxBalance * 1.5).convert("%");
@@ -46,55 +46,63 @@ const Charts = ({ banks }: chartsProps): JSX.Element => {
       .fill("#666");
   };
 
-  const d3Chart = () => {
+  const d3BarChart = () => {
     const balances = banksWithTotalBalance.map(
       ({ totalBalance }) => totalBalance
     );
+    const bankNames = banksWithTotalBalance.map(({ bankName }) => bankName);
+
+    const scale = 1.5;
+    const width = (data: number, shift: number) =>
+      (((data / maxBalance) * 100) / scale + shift).toString().concat("%");
 
     const svgCanvas = d3
       .select(d3ChartDivRef.current)
       .append("svg")
       .attr("width", "100%")
-      .attr("height", 400);
+      .attr("height", 250);
+
+    svgCanvas
+      .selectAll("text #bankName")
+      .data(bankNames)
+      .enter()
+      .append("text")
+      .attr("y", (dp, itr) => itr * 50 + 20)
+      .text((dp) => dp)
+      .attr("font-size", 16)
+      .attr("fill", colors.black);
 
     svgCanvas
       .selectAll("rect")
       .data(balances)
       .enter()
       .append("rect")
-      .attr("width", 25)
-      .attr("height", (datapoint) =>
-        ((datapoint / maxBalance) * 100).toString().concat("%")
-      )
-      .attr("fill", "orange")
-      .attr("x", (datapoint, iteration) => iteration * 45)
-      .attr("y", (datapoint) =>
-        (((maxBalance - datapoint) / maxBalance) * 100).toString().concat("%")
-      );
+      .attr("width", (datapoint) => width(datapoint, 0))
+      .attr("height", 25)
+      .attr("fill", colors.darkcyan)
+      .attr("y", (datapoint, iteration) => iteration * 50 + 22);
 
-    // svgCanvas
-    //   .selectAll("text")
-    //   .data(balances)
-    //   .enter()
-    //   .append("text")
-    //   .attr("x", (dataPoint, i) => i * 45 + 5)
-    //   .attr("y", (dataPoint) =>
-    //     (((maxBalance - dataPoint) / maxBalance) * 100 - 5)
-    //       .toString()
-    //       .concat("%")
-    //   )
-    //   .text((dataPoint) => dataPoint);
+    svgCanvas
+      .selectAll("text #balance")
+      .data(balances)
+      .enter()
+      .append("text")
+      .attr("x", (dataPoint) => width(dataPoint, 1))
+      .attr("y", (dataPoint, i) => i * 50 + 37)
+      .text((dataPoint) => dataPoint)
+      .attr("font-size", 14)
+      .attr("fill", "#666");
   };
 
   useEffect(() => {
     draw = SVG().addTo("#svg-chart").size("100%", 250);
     banksWithTotalBalance.forEach(
       ({ bankName, totalBalance }, index: number) => {
-        bar(bankName, totalBalance, index * 50);
+        svgBarChart(bankName, totalBalance, index * 50);
       }
     );
 
-    d3Chart();
+    d3BarChart();
   }, [banksWithTotalBalance]);
 
   return (
@@ -114,7 +122,7 @@ const Charts = ({ banks }: chartsProps): JSX.Element => {
           <Card.Title as="h6" className="border-bottom">
             <div className="mb-1">Total Bank Balances</div>
           </Card.Title>
-          <div ref={d3ChartDivRef}></div>
+          <div id="d3-chart" ref={d3ChartDivRef}></div>
         </Card.Body>
       </Card>
     </Container>
