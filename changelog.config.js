@@ -25,13 +25,14 @@ module.exports = {
     "lerna",
   ],
   scopes: [
-    "build",
-    "cli",
     "accounts",
-    "charts",
-    "dashboard",
     "account-details",
     "account-summary",
+    "build",
+    "charts",
+    "barchart",
+    "cli",
+    "dashboard",
   ],
   types: {
     chore: {
