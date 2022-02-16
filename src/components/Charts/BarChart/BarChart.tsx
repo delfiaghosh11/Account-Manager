@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Card, Col } from "react-bootstrap";
-import { bankProps, accountProps } from "../../types";
+import { bankProps } from "../../types";
 import { colors } from "../../colors";
 import { Number, Svg, SVG } from "@svgdotjs/svg.js";
 import * as d3 from "d3";
@@ -11,24 +11,12 @@ interface barChartProps {
 
 const BarChart = ({ banks }: barChartProps): JSX.Element => {
   const d3ChartDivRef = useRef(null);
-  const banksWithTotalBalance = banks.map((bank: bankProps) => {
-    const { accounts } = bank;
-
-    return {
-      ...bank,
-      totalBalance: accounts
-        .map(({ accBalance }: accountProps) => accBalance)
-        .reduce((prev: number, curr: number) => prev + curr),
-    };
-  });
-
+  let draw: Svg;
   const maxBalance = Math.max(
-    ...banksWithTotalBalance.map(({ totalBalance }) => totalBalance)
+    ...banks.map(({ totalBalance }) => totalBalance || 0)
   );
 
-  let draw: Svg;
-
-  const svgBarChart = (bankName: string, balance: number, y: number) => {
+  const svgBarChart = (bankName: string, balance = 0, y: number) => {
     draw.text(bankName).move(0, y).font({ size: 16 }).fill(colors.black);
 
     const width = new Number(balance).divide(maxBalance * 1.5).convert("%");
@@ -47,10 +35,8 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
   };
 
   const d3BarChart = () => {
-    const balances = banksWithTotalBalance.map(
-      ({ totalBalance }) => totalBalance
-    );
-    const bankNames = banksWithTotalBalance.map(({ bankName }) => bankName);
+    const balances = banks.map(({ totalBalance }) => totalBalance || 0);
+    const bankNames = banks.map(({ bankName }) => bankName);
 
     const scale = 1.5;
     const width = (data: number, shift: number) =>
@@ -95,15 +81,13 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
   };
 
   useEffect(() => {
-    draw = SVG().addTo("#svg-chart").size("100%", 250);
-    banksWithTotalBalance.forEach(
-      ({ bankName, totalBalance }, index: number) => {
-        svgBarChart(bankName, totalBalance, index * 50);
-      }
-    );
+    draw = SVG().addTo("#svg-bar-chart").size("100%", 250);
+    banks.forEach(({ bankName, totalBalance }, index: number) => {
+      svgBarChart(bankName, totalBalance, index * 50);
+    });
 
     d3BarChart();
-  }, [banksWithTotalBalance]);
+  }, [banks]);
 
   return (
     <>
@@ -114,7 +98,7 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
             <Card.Title as="h6" className="border-bottom">
               <div className="mb-1">Total Bank Balances</div>
             </Card.Title>
-            <div id="svg-chart"></div>
+            <div id="svg-bar-chart"></div>
           </Card.Body>
         </Card>
       </Col>
@@ -125,7 +109,7 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
             <Card.Title as="h6" className="border-bottom">
               <div className="mb-1">Total Bank Balances</div>
             </Card.Title>
-            <div id="d3-chart" ref={d3ChartDivRef}></div>
+            <div id="d3-bar-chart" ref={d3ChartDivRef}></div>
           </Card.Body>
         </Card>
       </Col>

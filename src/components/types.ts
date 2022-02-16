@@ -5,6 +5,7 @@ export interface bankProps {
   description: string;
   logo: string;
   accounts: accountProps[];
+  totalBalance?: number;
 }
 
 export interface accountProps {

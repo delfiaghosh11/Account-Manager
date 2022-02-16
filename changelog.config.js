@@ -33,6 +33,7 @@ module.exports = {
     "barchart",
     "cli",
     "dashboard",
+    "piechart",
   ],
   types: {
     chore: {
