@@ -3,6 +3,8 @@ import { Card, Col } from "react-bootstrap";
 import { bankProps } from "../../types";
 import { colors } from "../../colors";
 import * as d3 from "d3";
+import * as Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 
 interface barChartProps {
   banks: bankProps[];
@@ -11,6 +13,10 @@ interface barChartProps {
 const PieChart = ({ banks }: barChartProps): JSX.Element => {
   const d3PieChartDivRef = useRef(null);
   let cumulativePercent = 0;
+
+  const maxBalance = Math.max(
+    ...banks.map(({ totalBalance }) => totalBalance || 0)
+  );
 
   const totalBankBalance = banks
     .map(({ totalBalance }: bankProps) => totalBalance || 0)
@@ -112,6 +118,52 @@ const PieChart = ({ banks }: barChartProps): JSX.Element => {
       .attr("d", arc);
   };
 
+  const currentOptions = {
+    chart: {
+      plotBackgroundColor: null,
+      plotBorderWidth: null,
+      plotShadow: false,
+      type: "pie",
+    },
+    title: {
+      text: "Total Bank Balances",
+    },
+    tooltip: {
+      pointFormat: `<span>{series.name}: <b>{point.percentage:.1f}%</b></span></br><span>Balance: <b>Rs. {point.totalBalance}</b></span>`,
+    },
+    accessibility: {
+      point: {
+        valueSuffix: "%",
+      },
+    },
+    plotOptions: {
+      pie: {
+        allowPointSelect: true,
+        cursor: "pointer",
+        dataLabels: {
+          enabled: false,
+        },
+        showInLegend: true,
+      },
+    },
+    series: [
+      {
+        name: "Percentage",
+        colorByPoint: true,
+        data: banks.map((bank: bankProps) => {
+          const { bankName, totalBalance } = bank;
+          return {
+            name: bankName,
+            y: ((totalBalance || 0) / totalBankBalance) * 100,
+            totalBalance,
+            sliced: totalBalance === maxBalance ? true : false,
+            selected: totalBalance === maxBalance ? true : false,
+          };
+        }),
+      },
+    ],
+  };
+
   useEffect(() => {
     const svgEl = document.querySelector("#svg-pie-chart");
     svgPieChart(svgEl);
@@ -122,7 +174,7 @@ const PieChart = ({ banks }: barChartProps): JSX.Element => {
   return (
     <>
       <Col>
-        <Card className="mb-4">
+        <Card className="mb-4" style={{ height: "500px" }}>
           <Card.Header as="h5">SVG.js Chart</Card.Header>
           <Card.Body>
             <Card.Title as="h6" className="border-bottom">
@@ -143,13 +195,26 @@ const PieChart = ({ banks }: barChartProps): JSX.Element => {
         </Card>
       </Col>
       <Col>
-        <Card>
+        <Card className="mb-4" style={{ height: "500px" }}>
           <Card.Header as="h5">D3.js Chart</Card.Header>
           <Card.Body>
             <Card.Title as="h6" className="border-bottom">
               <div className="mb-1">Total Bank Balances</div>
             </Card.Title>
             <div id="d3-pie-chart" ref={d3PieChartDivRef}></div>
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col>
+        <Card style={{ height: "500px" }}>
+          <Card.Header as="h5">Highcharts.js Chart</Card.Header>
+          <Card.Body>
+            <div id="highcharts-pie">
+              <HighchartsReact
+                highcharts={Highcharts}
+                options={currentOptions}
+              />
+            </div>
           </Card.Body>
         </Card>
       </Col>

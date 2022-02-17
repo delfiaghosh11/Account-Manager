@@ -115,7 +115,7 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
     },
     series: [
       {
-        name: "Bank",
+        name: "Balance",
         colorByPoint: true,
         data: banks.map((bank: bankProps) => {
           const { bankName, totalBalance } = bank;
