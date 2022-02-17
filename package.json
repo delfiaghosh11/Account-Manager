@@ -10,6 +10,8 @@
     "@testing-library/user-event": "^12.8.3",
     "bootstrap": "^4.6.0",
     "d3": "^7.3.0",
+    "highcharts": "^9.3.3",
+    "highcharts-react-official": "^3.1.0",
     "husky": "^6.0.0",
     "lint-staged": "^11.0.0",
     "prettier": "^2.3.2",

@@ -4,6 +4,8 @@ import { bankProps } from "../../types";
 import { colors } from "../../colors";
 import { Number, Svg, SVG } from "@svgdotjs/svg.js";
 import * as d3 from "d3";
+import * as Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 
 interface barChartProps {
   banks: bankProps[];
@@ -80,6 +82,54 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
       .attr("fill", "#666");
   };
 
+  const currentOptions = {
+    chart: {
+      type: "column",
+    },
+    title: {
+      text: "Total Bank Balances",
+    },
+    xAxis: {
+      type: "category",
+    },
+    yAxis: {
+      title: {
+        text: "Total Balances",
+      },
+    },
+    legend: {
+      enabled: false,
+    },
+    plotOptions: {
+      series: {
+        borderWidth: 0,
+        dataLabels: {
+          enabled: true,
+          format: "{point.y:.1f}%",
+        },
+      },
+    },
+    tooltip: {
+      headerFormat: `<span style="font-size:11px">{series.name}</span><br>`,
+      pointFormat: `<span style="color:{point.color}">{point.name}</span>: <b>Rs. {point.totalBalance}</b><br/>`,
+    },
+    series: [
+      {
+        name: "Bank",
+        colorByPoint: true,
+        data: banks.map((bank: bankProps) => {
+          const { bankName, totalBalance } = bank;
+          return {
+            name: bankName,
+            y: ((totalBalance || 0) / maxBalance) * 100,
+            drilldown: bankName,
+            totalBalance,
+          };
+        }),
+      },
+    ],
+  };
+
   useEffect(() => {
     draw = SVG().addTo("#svg-bar-chart").size("100%", 250);
     banks.forEach(({ bankName, totalBalance }, index: number) => {
@@ -92,7 +142,7 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
   return (
     <>
       <Col>
-        <Card className="mb-4">
+        <Card className="mb-4" style={{ height: "500px" }}>
           <Card.Header as="h5">SVG.js Chart</Card.Header>
           <Card.Body>
             <Card.Title as="h6" className="border-bottom">
@@ -103,13 +153,26 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
         </Card>
       </Col>
       <Col>
-        <Card>
+        <Card className="mb-4" style={{ height: "500px" }}>
           <Card.Header as="h5">D3.js Chart</Card.Header>
           <Card.Body>
             <Card.Title as="h6" className="border-bottom">
               <div className="mb-1">Total Bank Balances</div>
             </Card.Title>
             <div id="d3-bar-chart" ref={d3BarChartDivRef}></div>
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col>
+        <Card style={{ height: "500px" }}>
+          <Card.Header as="h5">Highcharts.js Chart</Card.Header>
+          <Card.Body>
+            <div id="highcharts-bar">
+              <HighchartsReact
+                highcharts={Highcharts}
+                options={currentOptions}
+              />
+            </div>
           </Card.Body>
         </Card>
       </Col>

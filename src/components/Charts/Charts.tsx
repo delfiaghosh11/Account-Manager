@@ -21,10 +21,10 @@ const Charts = ({ banks }: chartsProps): JSX.Element => {
 
   return (
     <Container fluid className="my-5">
-      <Row xs={1} md={2} lg={2} className="g-4">
+      <Row xs={1} md={2} lg={3} className="g-4 mb-5">
         <BarChart banks={banksWithTotalBalance} />
       </Row>
-      <Row xs={1} md={2} lg={2} className="g-4">
+      <Row xs={1} md={2} lg={3} className="g-4">
         <PieChart banks={banksWithTotalBalance} />
       </Row>
     </Container>
