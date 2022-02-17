@@ -10,7 +10,7 @@ interface barChartProps {
 }
 
 const BarChart = ({ banks }: barChartProps): JSX.Element => {
-  const d3ChartDivRef = useRef(null);
+  const d3BarChartDivRef = useRef(null);
   let draw: Svg;
   const maxBalance = Math.max(
     ...banks.map(({ totalBalance }) => totalBalance || 0)
@@ -43,7 +43,7 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
       (((data / maxBalance) * 100) / scale + shift).toString().concat("%");
 
     const svgCanvas = d3
-      .select(d3ChartDivRef.current)
+      .select(d3BarChartDivRef.current)
       .append("svg")
       .attr("width", "100%")
       .attr("height", 250);
@@ -109,7 +109,7 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
             <Card.Title as="h6" className="border-bottom">
               <div className="mb-1">Total Bank Balances</div>
             </Card.Title>
-            <div id="d3-bar-chart" ref={d3ChartDivRef}></div>
+            <div id="d3-bar-chart" ref={d3BarChartDivRef}></div>
           </Card.Body>
         </Card>
       </Col>

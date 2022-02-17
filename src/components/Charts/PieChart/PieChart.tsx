@@ -1,14 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Card, Col } from "react-bootstrap";
 import { bankProps } from "../../types";
 import { colors } from "../../colors";
-// import * as d3 from "d3";
+import * as d3 from "d3";
 
 interface barChartProps {
   banks: bankProps[];
 }
 
 const PieChart = ({ banks }: barChartProps): JSX.Element => {
+  const d3PieChartDivRef = useRef(null);
   let cumulativePercent = 0;
 
   const totalBankBalance = banks
@@ -63,9 +64,59 @@ const PieChart = ({ banks }: barChartProps): JSX.Element => {
     });
   };
 
+  const d3PieChart = () => {
+    const balances: Array<any> = banks.map(({ totalBalance }) => totalBalance);
+    const bankNames = banks.map(({ bankName }) => bankName);
+
+    const outerRadius = 75;
+    const margin = { top: 50, right: 50, bottom: 50, left: 50 };
+
+    const width = 2 * outerRadius + margin.left + margin.right;
+    const height = 2 * outerRadius + margin.top + margin.bottom;
+
+    const colorScale = d3
+      .scaleSequential()
+      .interpolator(d3.interpolateCool)
+      .domain([0, balances.length]);
+
+    const svg = d3
+      .select(d3PieChartDivRef.current)
+      .append("svg")
+      .attr("width", "100%")
+      .attr("height", 250);
+
+    const g = svg
+      .append("g")
+      .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+    const radius = Math.min(width, height) / 2;
+
+    // Generate the pie
+    const pie = d3.pie();
+
+    // Generate the arcs
+    const arc: any = d3.arc().innerRadius(0).outerRadius(radius);
+
+    //Generate groups
+    const arcs = g
+      .selectAll("arc")
+      .data(pie(balances))
+      .enter()
+      .append("g")
+      .attr("class", "arc");
+
+    //Draw arc paths
+    arcs
+      .append("path")
+      .attr("fill", (_, i) => colorScale(i))
+      .attr("d", arc);
+  };
+
   useEffect(() => {
     const svgEl = document.querySelector("#svg-pie-chart");
     svgPieChart(svgEl);
+
+    d3PieChart();
   }, [banks]);
 
   return (
@@ -88,6 +139,17 @@ const PieChart = ({ banks }: barChartProps): JSX.Element => {
                 }}
               ></svg>
             </div>
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col>
+        <Card>
+          <Card.Header as="h5">D3.js Chart</Card.Header>
+          <Card.Body>
+            <Card.Title as="h6" className="border-bottom">
+              <div className="mb-1">Total Bank Balances</div>
+            </Card.Title>
+            <div id="d3-pie-chart" ref={d3PieChartDivRef}></div>
           </Card.Body>
         </Card>
       </Col>
