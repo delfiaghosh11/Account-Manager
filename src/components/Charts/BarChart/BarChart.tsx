@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { Card, Col } from "react-bootstrap";
-import { bankProps } from "../../types";
+import { bankProps, accountProps } from "../../types";
 import { colors } from "../../colors";
 import { Number, Svg, SVG } from "@svgdotjs/svg.js";
 import * as d3 from "d3";
 import * as Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import drilldown from "highcharts/modules/drilldown";
 
 interface barChartProps {
   banks: bankProps[];
@@ -14,14 +15,15 @@ interface barChartProps {
 const BarChart = ({ banks }: barChartProps): JSX.Element => {
   const d3BarChartDivRef = useRef(null);
   let draw: Svg;
-  const maxBalance = Math.max(
-    ...banks.map(({ totalBalance }) => totalBalance || 0)
-  );
+
+  const totalBankBalance = banks
+    .map(({ totalBalance }: bankProps) => totalBalance || 0)
+    .reduce((prev: number, curr: number) => prev + curr);
 
   const svgBarChart = (bankName: string, balance = 0, y: number) => {
     draw.text(bankName).move(0, y).font({ size: 16 }).fill(colors.black);
 
-    const width = new Number(balance).divide(maxBalance * 1.5).convert("%");
+    const width = new Number(balance).divide(totalBankBalance).convert("%");
 
     draw
       .rect(width as any, 25)
@@ -40,9 +42,11 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
     const balances = banks.map(({ totalBalance }) => totalBalance || 0);
     const bankNames = banks.map(({ bankName }) => bankName);
 
-    const scale = 1.5;
+    const scale = 1;
     const width = (data: number, shift: number) =>
-      (((data / maxBalance) * 100) / scale + shift).toString().concat("%");
+      (((data / totalBankBalance) * 100) / scale + shift)
+        .toString()
+        .concat("%");
 
     const svgCanvas = d3
       .select(d3BarChartDivRef.current)
@@ -82,12 +86,25 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
       .attr("fill", "#666");
   };
 
+  drilldown(Highcharts);
+
   const currentOptions = {
     chart: {
       type: "column",
     },
     title: {
       text: "Total Bank Balances",
+    },
+    subtitle: {
+      text: "Click the columns to view accounts",
+    },
+    accessibility: {
+      announceNewData: {
+        enabled: true,
+      },
+    },
+    credits: {
+      enabled: false,
     },
     xAxis: {
       type: "category",
@@ -111,23 +128,50 @@ const BarChart = ({ banks }: barChartProps): JSX.Element => {
     },
     tooltip: {
       headerFormat: `<span style="font-size:11px">{series.name}</span><br>`,
-      pointFormat: `<span style="color:{point.color}">{point.name}</span>: <b>Rs. {point.totalBalance}</b><br/>`,
+      pointFormat: `<span style="color:{point.color}">{point.name}</span>: <b>Rs. {point.balance}</b><br/>`,
     },
     series: [
       {
         name: "Balance",
         colorByPoint: true,
         data: banks.map((bank: bankProps) => {
-          const { bankName, totalBalance } = bank;
+          const { bankId, bankName, totalBalance: balance } = bank;
           return {
             name: bankName,
-            y: ((totalBalance || 0) / maxBalance) * 100,
-            drilldown: bankName,
-            totalBalance,
+            y: ((balance || 0) / totalBankBalance) * 100,
+            drilldown: bankId,
+            balance,
           };
         }),
       },
     ],
+    drilldown: {
+      breadcrumbs: {
+        position: {
+          align: "right",
+        },
+      },
+      type: "column",
+      series: banks.map((bank: bankProps) => {
+        const { bankId, bankName, accounts } = bank;
+        const totalAccBalance = accounts
+          .map(({ accBalance }) => accBalance)
+          .reduce((prev: number, curr: number) => prev + curr);
+        const bankAccounts = accounts.map((account: accountProps) => {
+          const { accHolderName, accBalance: balance } = account;
+          return {
+            name: accHolderName,
+            y: (balance / totalAccBalance) * 100,
+            balance,
+          };
+        });
+        return {
+          name: bankName,
+          id: bankId,
+          data: bankAccounts,
+        };
+      }),
+    },
   };
 
   useEffect(() => {

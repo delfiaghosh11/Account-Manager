@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
 import { Card, Col } from "react-bootstrap";
-import { bankProps } from "../../types";
+import { bankProps, accountProps } from "../../types";
 import { colors } from "../../colors";
 import * as d3 from "d3";
 import * as Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import drilldown from "highcharts/modules/drilldown";
 
 interface barChartProps {
   banks: bankProps[];
@@ -118,6 +119,8 @@ const PieChart = ({ banks }: barChartProps): JSX.Element => {
       .attr("d", arc);
   };
 
+  drilldown(Highcharts);
+
   const currentOptions = {
     chart: {
       plotBackgroundColor: null,
@@ -128,13 +131,22 @@ const PieChart = ({ banks }: barChartProps): JSX.Element => {
     title: {
       text: "Total Bank Balances",
     },
+    subtitle: {
+      text: "Click the columns to view accounts",
+    },
     tooltip: {
-      pointFormat: `<span>{series.name}: <b>{point.percentage:.1f}%</b></span></br><span>Balance: <b>Rs. {point.totalBalance}</b></span>`,
+      pointFormat: `<span>{series.name}: <b>{point.percentage:.1f}%</b></span></br><span>Balance: <b>Rs. {point.balance}</b></span>`,
     },
     accessibility: {
+      announceNewData: {
+        enabled: true,
+      },
       point: {
         valueSuffix: "%",
       },
+    },
+    credits: {
+      enabled: false,
     },
     plotOptions: {
       pie: {
@@ -151,17 +163,45 @@ const PieChart = ({ banks }: barChartProps): JSX.Element => {
         name: "Percentage",
         colorByPoint: true,
         data: banks.map((bank: bankProps) => {
-          const { bankName, totalBalance } = bank;
+          const { bankId, bankName, totalBalance: balance } = bank;
           return {
             name: bankName,
-            y: ((totalBalance || 0) / totalBankBalance) * 100,
-            totalBalance,
-            sliced: totalBalance === maxBalance ? true : false,
-            selected: totalBalance === maxBalance ? true : false,
+            y: ((balance || 0) / totalBankBalance) * 100,
+            balance,
+            drilldown: bankId,
+            sliced: balance === maxBalance ? true : false,
+            selected: balance === maxBalance ? true : false,
           };
         }),
       },
     ],
+    drilldown: {
+      type: "pie",
+      series: banks.map((bank: bankProps) => {
+        const { bankId, bankName, accounts } = bank;
+        const totalAccBalance = accounts
+          .map(({ accBalance }) => accBalance)
+          .reduce((prev: number, curr: number) => prev + curr);
+        const maxAccBalance = Math.max(
+          ...accounts.map(({ accBalance }) => accBalance)
+        );
+        const bankAccounts = accounts.map((account: accountProps) => {
+          const { accHolderName, accBalance: balance } = account;
+          return {
+            name: accHolderName,
+            y: (balance / totalAccBalance) * 100,
+            balance,
+            sliced: balance === maxAccBalance ? true : false,
+            selected: balance === maxAccBalance ? true : false,
+          };
+        });
+        return {
+          name: "Percentage",
+          id: bankId,
+          data: bankAccounts,
+        };
+      }),
+    },
   };
 
   useEffect(() => {
